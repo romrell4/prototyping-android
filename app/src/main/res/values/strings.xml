@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Prototyping</string>
 
-    <string name="display_hint_text">Text will be displayed here…</string>
+    <string name="widget_type_menu_item_text">Change Widget Type</string>
+    <string name="display_text">This widget will display text when designed to…</string>
+    <string name="audio_text">This widget will play audio when designed to…</string>
 </resources>
