@@ -1,14 +1,12 @@
 package com.romrell4.prototyping
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.Menu
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.EditText
-import android.widget.Spinner
+import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
@@ -17,6 +15,9 @@ import com.romrell4.prototyping.widgets.AudioFragment
 import com.romrell4.prototyping.widgets.BaseFragment
 import com.romrell4.prototyping.widgets.DisplayFragment
 import kotlinx.android.synthetic.main.activity_main.*
+
+private const val SHARED_PREFS_NAME = "com.romrell4.prototyping"
+private const val SP_WIDGET_NAME = "widget_name"
 
 class MainActivity : AppCompatActivity() {
 
@@ -53,7 +54,13 @@ class MainActivity : AppCompatActivity() {
 
         widget_name.setOnEditorActionListener { v, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE && v is EditText && v.text.isNotBlank()) {
-                ref = systemsRef.document(v.text.toString())
+                v.text.toString().also {
+                    getSharedPreferences(SHARED_PREFS_NAME, 0)
+                        .edit()
+                        .putString(SP_WIDGET_NAME, it)
+                        .apply()
+                    ref = systemsRef.document(it)
+                }
             }
             //Allow the button to still dismiss the keyboard
             false
@@ -71,6 +78,11 @@ class MainActivity : AppCompatActivity() {
             adapter = ArrayAdapter<String>(
                 this@MainActivity, R.layout.spinner_item, fragments.map(BaseFragment::displayName)
             ).apply { setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
+        }
+
+        getSharedPreferences(SHARED_PREFS_NAME, 0).getString(SP_WIDGET_NAME, null)?.also {
+            widget_name.setText(it)
+            ref = systemsRef.document(it)
         }
     }
 
