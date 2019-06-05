@@ -34,12 +34,24 @@ class MainActivity : AppCompatActivity() {
     private val systemsRef = Firebase.firestore.collection("systems")
     private val serverRef = systemsRef.document("server")
     private var ref: DocumentReference? = null
+        set(value) {
+            field = value
+            field?.addSnapshotListener { querySnapshot, _ ->
+                querySnapshot.getEvents().takeIf { it.isNotEmpty() }?.let {
+                    //Handle each event in turn (should be sorted)
+                    querySnapshot.getEvents().forEach { currentFragment.handleEvent(it) }
+
+                    //Reset the events in the queue
+                    ref?.set(mapOf("events" to emptyList<Event>()))
+                } ?: println("Empty event list")
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        widget_name.setOnEditorActionListener { v, actionId, event ->
+        widget_name.setOnEditorActionListener { v, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE && v is EditText && v.text.isNotBlank()) {
                 ref = systemsRef.document(v.text.toString())
             }
@@ -59,16 +71,6 @@ class MainActivity : AppCompatActivity() {
             adapter = ArrayAdapter<String>(
                 this@MainActivity, R.layout.spinner_item, fragments.map(BaseFragment::displayName)
             ).apply { setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
-        }
-
-        ref?.addSnapshotListener { querySnapshot, _ ->
-            querySnapshot.getEvents().takeIf { it.isNotEmpty() }?.let {
-                //Handle each event in turn (should be sorted)
-                querySnapshot.getEvents().forEach { currentFragment.handleEvent(it) }
-
-                //Reset the events in the queue
-                ref.set(mapOf("events" to emptyList<Event>()))
-            } ?: println("Empty event list")
         }
     }
 
