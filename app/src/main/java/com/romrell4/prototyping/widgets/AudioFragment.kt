@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.romrell4.prototyping.Event
 import com.romrell4.prototyping.R
 
 class AudioFragment : BaseFragment() {
@@ -11,5 +12,9 @@ class AudioFragment : BaseFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.fragment_audio, container, false)
+    }
+
+    override fun handleEvent(event: Event) {
+        println(event)
     }
 }
