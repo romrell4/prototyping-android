@@ -19,6 +19,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 private const val SHARED_PREFS_NAME = "com.romrell4.prototyping"
 private const val SP_WIDGET_NAME = "widget_name"
+private const val SP_WIDGET_TYPE_INDEX = "widget_index"
 
 class MainActivity : AppCompatActivity() {
 
@@ -41,6 +42,12 @@ class MainActivity : AppCompatActivity() {
             field = value
             widget_name.setText(value)
             ref = systemsRef.document(value)
+        }
+    private var widgetTypeIndex: Int = 0
+        set(value) {
+            field = value
+            spinner.setSelection(widgetTypeIndex)
+            currentFragment = fragments[value]
         }
     private var ref: DocumentReference? = null
         set(value) {
@@ -79,7 +86,11 @@ class MainActivity : AppCompatActivity() {
                 override fun onNothingSelected(parent: AdapterView<*>?) {}
 
                 override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                    currentFragment = fragments[position]
+                    getSharedPreferences(SHARED_PREFS_NAME, 0)
+                        .edit()
+                        .putInt(SP_WIDGET_TYPE_INDEX, position)
+                        .apply()
+                    widgetTypeIndex = position
                 }
             }
 
@@ -88,8 +99,9 @@ class MainActivity : AppCompatActivity() {
             ).apply { setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
         }
 
-        getSharedPreferences(SHARED_PREFS_NAME, 0).getString(SP_WIDGET_NAME, null)?.also {
-            widgetName = it
+        getSharedPreferences(SHARED_PREFS_NAME, 0).apply {
+            widgetName = getString(SP_WIDGET_NAME, null) ?: ""
+            widgetTypeIndex = getInt(SP_WIDGET_TYPE_INDEX, 0)
         }
     }
 
