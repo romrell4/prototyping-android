@@ -5,4 +5,8 @@
     <string name="display_text">This widget will display text when designed to…</string>
     <string name="audio_text">This widget will play audio when designed to…</string>
     <string name="title_hint">Enter Widget Name Here</string>
+
+    <!--Button Fragment-->
+    <string name="send_button_text">Send</string>
+    <string name="button_message_hint">Enter message here</string>
 </resources>

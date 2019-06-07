@@ -13,6 +13,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.romrell4.prototyping.widgets.AudioFragment
 import com.romrell4.prototyping.widgets.BaseFragment
+import com.romrell4.prototyping.widgets.ButtonFragment
 import com.romrell4.prototyping.widgets.DisplayFragment
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -23,7 +24,8 @@ class MainActivity : AppCompatActivity() {
 
     private val fragments = listOf(
         DisplayFragment(),
-        AudioFragment()
+        AudioFragment(),
+        ButtonFragment()
     )
     private var currentFragment = fragments[0]
         set(value) {
@@ -34,6 +36,12 @@ class MainActivity : AppCompatActivity() {
         }
     private val systemsRef = Firebase.firestore.collection("systems")
     private val serverRef = systemsRef.document("server")
+    private var widgetName: String = ""
+        set(value) {
+            field = value
+            widget_name.setText(value)
+            ref = systemsRef.document(value)
+        }
     private var ref: DocumentReference? = null
         set(value) {
             field = value
@@ -59,7 +67,7 @@ class MainActivity : AppCompatActivity() {
                         .edit()
                         .putString(SP_WIDGET_NAME, it)
                         .apply()
-                    ref = systemsRef.document(it)
+                    widgetName = it
                 }
             }
             //Allow the button to still dismiss the keyboard
@@ -81,8 +89,15 @@ class MainActivity : AppCompatActivity() {
         }
 
         getSharedPreferences(SHARED_PREFS_NAME, 0).getString(SP_WIDGET_NAME, null)?.also {
-            widget_name.setText(it)
-            ref = systemsRef.document(it)
+            widgetName = it
+        }
+    }
+
+    fun sendEvent(message: String) {
+        serverRef.get().addOnSuccessListener {
+            serverRef.update("events", it.getEvents().toMutableList().apply { add(Event(widgetName, message)) })
+        }.addOnFailureListener {
+            print(it)
         }
     }
 
