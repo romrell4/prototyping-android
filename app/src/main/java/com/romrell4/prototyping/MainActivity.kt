@@ -11,6 +11,7 @@ import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.romrell4.prototyping.support.showToast
 import com.romrell4.prototyping.widgets.AudioFragment
 import com.romrell4.prototyping.widgets.BaseFragment
 import com.romrell4.prototyping.widgets.ButtonFragment
@@ -107,13 +108,18 @@ class MainActivity : AppCompatActivity() {
 
     fun sendEvent(message: String) {
         serverRef.get().addOnSuccessListener {
-            serverRef.update("events", it.getEvents().toMutableList().apply { add(Event(widgetName, message)) })
-        }.addOnFailureListener {
-            print(it)
+            serverRef.update("events", it.getEvents().toMutableList().apply { add(Event(widgetName, message)) }).addOnSuccessListener {
+                showToast(R.string.event_success)
+            }.addOnFailureListener { e ->
+                showToast(getString(R.string.event_failed, e))
+            }
+        }.addOnFailureListener { e ->
+            showToast(getString(R.string.event_failed, e))
         }
     }
 
     private fun DocumentSnapshot?.getEvents(): List<Event> {
+        @Suppress("UNCHECKED_CAST")
         return (this?.get("events") as? List<HashMap<String, Any>>).orEmpty().map { Event(it) }
     }
 }

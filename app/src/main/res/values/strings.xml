@@ -9,4 +9,6 @@
     <!--Button Fragment-->
     <string name="send_button_text">Send</string>
     <string name="button_message_hint">Enter message here</string>
+    <string name="event_success">Event sent successfully</string>
+    <string name="event_failed">Event failed to send: %1$s</string>
 </resources>
