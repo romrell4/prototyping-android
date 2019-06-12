@@ -38,11 +38,13 @@ class MainActivity : AppCompatActivity() {
         }
     private val systemsRef = Firebase.firestore.collection("systems")
     private val serverRef = systemsRef.document("server")
-    private var widgetName: String = ""
+    private var widgetName: String? = null
         set(value) {
             field = value
             widget_name.setText(value)
-            ref = systemsRef.document(value)
+            value.takeIf { !it.isNullOrBlank() }?.let {
+                ref = systemsRef.document(it)
+            }
         }
     private var widgetTypeIndex: Int = 0
         set(value) {
@@ -101,7 +103,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         getSharedPreferences(SHARED_PREFS_NAME, 0).apply {
-            widgetName = getString(SP_WIDGET_NAME, null) ?: ""
+            widgetName = getString(SP_WIDGET_NAME, null)
             widgetTypeIndex = getInt(SP_WIDGET_TYPE_INDEX, 0)
         }
     }
