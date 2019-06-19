@@ -12,10 +12,7 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.romrell4.prototyping.support.showToast
-import com.romrell4.prototyping.widgets.AudioFragment
-import com.romrell4.prototyping.widgets.BaseFragment
-import com.romrell4.prototyping.widgets.ButtonFragment
-import com.romrell4.prototyping.widgets.DisplayFragment
+import com.romrell4.prototyping.widgets.*
 import kotlinx.android.synthetic.main.activity_main.*
 
 private const val SHARED_PREFS_NAME = "com.romrell4.prototyping"
@@ -27,7 +24,8 @@ class MainActivity : AppCompatActivity() {
     private val fragments = listOf(
         DisplayFragment(),
         AudioFragment(),
-        ButtonFragment()
+        ButtonFragment(),
+        KnobFragment()
     )
     private var currentFragment = fragments[0]
         set(value) {
@@ -108,9 +106,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun sendEvent(message: String) {
+    fun sendEvent(type: String, message: String) {
         serverRef.get().addOnSuccessListener {
-            serverRef.update("events", it.getEvents().toMutableList().apply { add(Event(widgetName, message)) }).addOnSuccessListener {
+            serverRef.update("events", it.getEvents().toMutableList().apply { add(Event(type, widgetName, message)) }).addOnSuccessListener {
                 showToast(R.string.event_success)
             }.addOnFailureListener { e ->
                 showToast(getString(R.string.event_failed, e))

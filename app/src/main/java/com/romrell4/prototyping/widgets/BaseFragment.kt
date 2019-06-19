@@ -9,7 +9,7 @@ abstract class BaseFragment: Fragment() {
 
     abstract fun handleEvent(event: Event)
 
-    protected fun sendEvent(message: String) {
-        (activity as? MainActivity)?.sendEvent(message)
+    protected fun sendEvent(type: String, message: String) {
+        (activity as? MainActivity)?.sendEvent(type, message)
     }
 }

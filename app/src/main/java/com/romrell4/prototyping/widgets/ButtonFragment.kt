@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import com.romrell4.prototyping.Event
 import com.romrell4.prototyping.R
 import com.romrell4.prototyping.support.hideKeyboard
+import kotlinx.android.synthetic.main.fragment_button.*
 import kotlinx.android.synthetic.main.fragment_button.view.*
 
 class ButtonFragment : BaseFragment() {
@@ -16,12 +17,15 @@ class ButtonFragment : BaseFragment() {
         return inflater.inflate(R.layout.fragment_button, container, false).apply {
             button.setOnClickListener {
                 hideKeyboard()
-                sendEvent(edit_text.text.toString())
+                sendEvent("BUTTON_TAPPED", edit_text.text.toString())
             }
         }
     }
 
     override fun handleEvent(event: Event) {
-
+        when (event.type) {
+            "UPDATE_BUTTON_TEXT" -> button.text = event.message
+            else -> println("Unhandled event: $event")
+        }
     }
 }
