@@ -78,7 +78,9 @@ class MainActivity : AppCompatActivity() {
                 .setTitle(R.string.dialog_title)
                 .setView(view)
                 .setPositiveButton("Save") { _, _ ->
-                    widgetName = view.widget_name.text.toString()
+                    view.widget_name.text.toString().takeIf { it.isNotBlank() }?.let {
+                        widgetName = it
+                    }
                 }
                 .setNegativeButton("Cancel", null)
                 .show()
