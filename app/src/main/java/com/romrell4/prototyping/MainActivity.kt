@@ -2,18 +2,19 @@ package com.romrell4.prototyping
 
 import android.os.Bundle
 import android.view.View
-import android.view.inputmethod.EditorInfo
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.EditText
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.romrell4.prototyping.support.showToast
 import com.romrell4.prototyping.widgets.*
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.dialog_widget_name.view.*
 
 private const val SHARED_PREFS_NAME = "com.romrell4.prototyping"
 private const val SP_WIDGET_NAME = "widget_name"
@@ -39,7 +40,7 @@ class MainActivity : AppCompatActivity() {
     private var widgetName: String? = null
         set(value) {
             field = value
-            widget_name.setText(value)
+            widget_name.text = value
             value.takeIf { !it.isNullOrBlank() }?.let {
                 ref = systemsRef.document(it)
             }
@@ -53,7 +54,8 @@ class MainActivity : AppCompatActivity() {
     private var ref: DocumentReference? = null
         set(value) {
             field = value
-            field?.addSnapshotListener { querySnapshot, _ ->
+            docListener?.remove()
+            docListener = field?.addSnapshotListener { querySnapshot, _ ->
                 querySnapshot.getEvents().takeIf { it.isNotEmpty() }?.let {
                     //Handle each event in turn (should be sorted)
                     querySnapshot.getEvents().forEach { currentFragment.handleEvent(it) }
@@ -63,23 +65,23 @@ class MainActivity : AppCompatActivity() {
                 } ?: println("Empty event list")
             }
         }
+    private var docListener: ListenerRegistration? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        widget_name.setOnEditorActionListener { v, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_DONE && v is EditText && v.text.isNotBlank()) {
-                v.text.toString().also {
-                    getSharedPreferences(SHARED_PREFS_NAME, 0)
-                        .edit()
-                        .putString(SP_WIDGET_NAME, it)
-                        .apply()
-                    widgetName = it
+        widget_name.setOnClickListener {
+            val view = layoutInflater.inflate(R.layout.dialog_widget_name, null, false)
+            view.widget_name.setText(widgetName)
+            AlertDialog.Builder(this)
+                .setTitle(R.string.dialog_title)
+                .setView(view)
+                .setPositiveButton("Save") { _, _ ->
+                    widgetName = view.widget_name.text.toString()
                 }
-            }
-            //Allow the button to still dismiss the keyboard
-            false
+                .setNegativeButton("Cancel", null)
+                .show()
         }
 
         spinner.apply {
