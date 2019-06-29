@@ -17,7 +17,7 @@ class DisplayFragment : BaseFragment() {
 
     override fun handleEvent(event: Event) {
         when (event.type) {
-            "UPDATE_DISPLAY" -> text_view.text = event.message
+            "UPDATE_TEXT" -> text_view.text = event.message
             else -> println("Unhandled event: $event")
         }
     }

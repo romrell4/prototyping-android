@@ -79,6 +79,10 @@ class MainActivity : AppCompatActivity() {
                 .setView(view)
                 .setPositiveButton("Save") { _, _ ->
                     view.widget_name.text.toString().takeIf { it.isNotBlank() }?.let {
+                        getSharedPreferences(SHARED_PREFS_NAME, 0)
+                            .edit()
+                            .putString(SP_WIDGET_NAME, it)
+                            .apply()
                         widgetName = it
                     }
                 }
