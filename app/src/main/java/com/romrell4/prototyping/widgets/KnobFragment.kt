@@ -16,8 +16,11 @@ class KnobFragment : BaseFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.fragment_knob, container, false).apply {
+            text_view.text = getString(R.string.knob_progress_text, 0)
             seek_bar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {}
+                override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                    text_view.text = getString(R.string.knob_progress_text, progress)
+                }
 
                 override fun onStartTrackingTouch(seekBar: SeekBar) {}
 
@@ -30,10 +33,12 @@ class KnobFragment : BaseFragment() {
 
     override fun handleEvent(event: Event) {
         when(event.type) {
-            "UPDATE_KNOB_PROGRESS" -> try {
-                event.message?.toInt()?.let { seek_bar.progress = it }
-            } catch (e: NumberFormatException) {
-                println("Invalid number format: ${event.message}")
+            "UPDATE_KNOB_PROGRESS" -> {
+                try {
+                    event.message?.toInt()?.let { seek_bar.progress = it }
+                } catch (e: NumberFormatException) {
+                    println("Invalid number format: ${event.message}")
+                }
             }
             else -> println("Unhandled event: $event")
         }

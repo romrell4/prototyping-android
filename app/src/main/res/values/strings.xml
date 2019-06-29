@@ -12,4 +12,5 @@
     <string name="button_message_hint">Enter message here</string>
     <string name="event_success">Event sent successfully</string>
     <string name="event_failed">Event failed to send: %1$s</string>
+    <string name="knob_progress_text">%1$d / 100</string>
 </resources>
