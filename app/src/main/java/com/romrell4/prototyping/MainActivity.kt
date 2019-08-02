@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity() {
         TextFragment(),
         SpeakerFragment(),
         ButtonFragment(),
-        KnobFragment()
+        SliderFragment()
     )
     private var currentFragment = fragments[0]
         set(value) {
@@ -114,7 +114,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun sendEvent(type: String, message: String? = null) {
+    fun sendEvent(type: String, message: String?) {
         serverRef.get().addOnSuccessListener {
             serverRef.update("events", it.getEvents().toMutableList().apply { add(Event(type, widgetName, message)) }).addOnSuccessListener {
                 showToast(R.string.event_success)

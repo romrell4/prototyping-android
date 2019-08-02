@@ -7,15 +7,15 @@ import android.view.ViewGroup
 import android.widget.SeekBar
 import com.romrell4.prototyping.Event
 import com.romrell4.prototyping.R
-import kotlinx.android.synthetic.main.fragment_knob.*
-import kotlinx.android.synthetic.main.fragment_knob.view.*
+import kotlinx.android.synthetic.main.fragment_slider.*
+import kotlinx.android.synthetic.main.fragment_slider.view.*
 import java.lang.NumberFormatException
 
-class KnobFragment : BaseFragment() {
-    override val displayName = "Knob"
+class SliderFragment : BaseFragment() {
+    override val displayName = "Slider"
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        return inflater.inflate(R.layout.fragment_knob, container, false).apply {
+        return inflater.inflate(R.layout.fragment_slider, container, false).apply {
             text_view.text = getString(R.string.knob_progress_text, 0)
             seek_bar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
@@ -25,7 +25,7 @@ class KnobFragment : BaseFragment() {
                 override fun onStartTrackingTouch(seekBar: SeekBar) {}
 
                 override fun onStopTrackingTouch(seekBar: SeekBar) {
-                    sendEvent("KNOB_PROGRESS_UPDATED", seekBar.progress.toString())
+                    sendEvent("PROGRESS_UPDATED", seekBar.progress.toString())
                 }
             })
         }
@@ -33,7 +33,7 @@ class KnobFragment : BaseFragment() {
 
     override fun handleEvent(event: Event) {
         when(event.type) {
-            "UPDATE_KNOB_PROGRESS" -> {
+            "UPDATE_PROGRESS" -> {
                 try {
                     event.message?.toInt()?.let { seek_bar.progress = it }
                 } catch (e: NumberFormatException) {
