@@ -11,8 +11,8 @@ import com.romrell4.prototyping.Event
 import com.romrell4.prototyping.R
 import java.util.*
 
-class AudioFragment : BaseFragment() {
-    override val displayName = "Audio"
+class SpeakerFragment : BaseFragment() {
+    override val displayName = "Speaker"
     private lateinit var tts: TextToSpeech
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {

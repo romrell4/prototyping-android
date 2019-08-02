@@ -6,8 +6,8 @@
     android:layout_height="match_parent"
     tools:context=".widgets.ButtonFragment">
 
-    <EditText
-        android:id="@+id/edit_text"
+    <Button
+        android:id="@+id/button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -16,22 +16,9 @@
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginBottom="8dp"
-        android:ems="10"
-        android:hint="@string/button_message_hint"
-        android:inputType="text"
-        android:textSize="24sp"
+        android:text="@string/send_button_text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/send_button_text"
-        app:layout_constraintEnd_toEndOf="@+id/edit_text"
-        app:layout_constraintStart_toStartOf="@+id/edit_text"
-        app:layout_constraintTop_toBottomOf="@+id/edit_text" />
 </androidx.constraintlayout.widget.ConstraintLayout>

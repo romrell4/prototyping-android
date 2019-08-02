@@ -23,8 +23,8 @@ private const val SP_WIDGET_TYPE_INDEX = "widget_index"
 class MainActivity : AppCompatActivity() {
 
     private val fragments = listOf(
-        DisplayFragment(),
-        AudioFragment(),
+        TextFragment(),
+        SpeakerFragment(),
         ButtonFragment(),
         KnobFragment()
     )
@@ -114,7 +114,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun sendEvent(type: String, message: String) {
+    fun sendEvent(type: String, message: String? = null) {
         serverRef.get().addOnSuccessListener {
             serverRef.update("events", it.getEvents().toMutableList().apply { add(Event(type, widgetName, message)) }).addOnSuccessListener {
                 showToast(R.string.event_success)

@@ -16,8 +16,7 @@ class ButtonFragment : BaseFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.fragment_button, container, false).apply {
             button.setOnClickListener {
-                hideKeyboard()
-                sendEvent("BUTTON_TAPPED", edit_text.text.toString())
+                sendEvent("BUTTON_TAPPED")
             }
         }
     }
