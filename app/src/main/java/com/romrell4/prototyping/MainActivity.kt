@@ -43,6 +43,19 @@ class MainActivity : AppCompatActivity() {
             widget_name.text = value
             value.takeIf { !it.isNullOrBlank() }?.let {
                 ref = systemsRef.document(it)
+
+                //Update the widget image
+                val resourceId = resources.getIdentifier(widgetName, "drawable", packageName)
+                if (resourceId != 0) {
+                    imageView.visibility = View.VISIBLE
+                    imageView.setImageDrawable(
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP)
+                            resources.getDrawable(resourceId, theme)
+                        else resources.getDrawable(resourceId)
+                    )
+                } else {
+                    imageView.visibility = View.GONE
+                }
             }
         }
     private var widgetTypeIndex: Int = 0
@@ -116,11 +129,10 @@ class MainActivity : AppCompatActivity() {
 
     fun sendEvent(type: String, message: String?) {
         serverRef.get().addOnSuccessListener {
-            serverRef.update("events", it.getEvents().toMutableList().apply { add(Event(type, widgetName, message)) }).addOnSuccessListener {
-                showToast(R.string.event_success)
-            }.addOnFailureListener { e ->
-                showToast(getString(R.string.event_failed, e))
-            }
+            serverRef.update("events", it.getEvents().toMutableList()
+                .apply { add(Event(type, widgetName, message)) })
+                .addOnSuccessListener { showToast(R.string.event_success) }
+                .addOnFailureListener { e -> showToast(getString(R.string.event_failed, e)) }
         }.addOnFailureListener { e ->
             showToast(getString(R.string.event_failed, e))
         }

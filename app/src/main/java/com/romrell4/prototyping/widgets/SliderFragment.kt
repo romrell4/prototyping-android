@@ -9,7 +9,6 @@ import com.romrell4.prototyping.Event
 import com.romrell4.prototyping.R
 import kotlinx.android.synthetic.main.fragment_slider.*
 import kotlinx.android.synthetic.main.fragment_slider.view.*
-import java.lang.NumberFormatException
 
 class SliderFragment : BaseFragment() {
     override val displayName = "Slider"
