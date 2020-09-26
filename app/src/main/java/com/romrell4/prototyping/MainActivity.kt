@@ -42,7 +42,9 @@ class MainActivity : AppCompatActivity() {
             field = value
             widget_name.text = value
             value.takeIf { !it.isNullOrBlank() }?.let {
-                ref = systemsRef.document(it)
+                systemsRef.whereEqualTo("name", it).get().addOnSuccessListener { docs ->
+                    ref = systemsRef.document(docs.first().id)
+                }
 
                 //Update the widget image
                 val resourceId = resources.getIdentifier(widgetName, "drawable", packageName)
@@ -74,7 +76,7 @@ class MainActivity : AppCompatActivity() {
                     querySnapshot.getEvents().forEach { currentFragment.handleEvent(it) }
 
                     //Reset the events in the queue
-                    ref?.set(mapOf("events" to emptyList<Event>()))
+                    ref?.set((querySnapshot?.data ?: mutableMapOf()).apply { this["events"] = emptyList<Event>() })
                 } ?: println("Empty event list")
             }
         }
