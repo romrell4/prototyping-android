@@ -12,6 +12,7 @@ import kotlinx.android.synthetic.main.fragment_slider.view.*
 
 class SliderFragment : BaseFragment() {
     override val displayName = "Slider"
+    override val widgetType = "slider"
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.fragment_slider, container, false).apply {

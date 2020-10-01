@@ -11,6 +11,7 @@ import kotlinx.android.synthetic.main.fragment_button.view.*
 
 class ButtonFragment : BaseFragment() {
     override val displayName = "Button"
+    override val widgetType = "button"
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.fragment_button, container, false).apply {

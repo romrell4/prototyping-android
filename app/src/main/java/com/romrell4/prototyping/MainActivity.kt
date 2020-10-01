@@ -1,10 +1,10 @@
 package com.romrell4.prototyping
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
@@ -12,13 +12,14 @@ import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.romrell4.prototyping.support.showToast
-import com.romrell4.prototyping.widgets.*
+import com.romrell4.prototyping.widgets.ButtonFragment
+import com.romrell4.prototyping.widgets.SliderFragment
+import com.romrell4.prototyping.widgets.SpeakerFragment
+import com.romrell4.prototyping.widgets.TextFragment
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.dialog_widget_name.view.*
 
 private const val SHARED_PREFS_NAME = "com.romrell4.prototyping"
-private const val SP_WIDGET_NAME = "widget_name"
-private const val SP_WIDGET_TYPE_INDEX = "widget_index"
+private const val SP_WIDGET_ID = "widget_id"
 
 class MainActivity : AppCompatActivity() {
 
@@ -37,17 +38,45 @@ class MainActivity : AppCompatActivity() {
         }
     private val systemsRef = Firebase.firestore.collection("systems")
     private val serverRef = systemsRef.document("server")
-    private var widgetName: String? = null
+    private var widgets = emptyList<Widget>()
         set(value) {
             field = value
-            widget_name.text = value
-            value.takeIf { !it.isNullOrBlank() }?.let {
-                systemsRef.whereEqualTo("name", it).get().addOnSuccessListener { docs ->
-                    ref = systemsRef.document(docs.first().id)
+
+            widget_spinner.adapter = ArrayAdapter(this, R.layout.spinner_item, listOf("Select a widget") + widgets.map { it.name }).apply {
+                setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            }
+
+            //If they have a stored ID already, select that one
+            getSharedPreferences(SHARED_PREFS_NAME, 0).getString(SP_WIDGET_ID, null)?.let { widgetId ->
+                selectedWidget = widgets.first { it.id == widgetId }
+            }
+        }
+    private var selectedWidget: Widget? = null
+        @SuppressLint("DefaultLocale")
+        set(value) {
+            field = value
+
+            //The "+ 1" handles the placeholder item that we place
+            widget_spinner.setSelection(widgets.indexOfFirst { it.id == selectedWidget?.id } + 1)
+
+            widget_type.text = value?.type?.capitalize()
+
+            value?.let { widget ->
+                ref = systemsRef.document(widget.id)
+
+                //Save the selection in shared prefs
+                getSharedPreferences(SHARED_PREFS_NAME, 0)
+                    .edit()
+                    .putString(SP_WIDGET_ID, widget.id)
+                    .apply()
+
+                //Update the displayed fragment
+                fragments.firstOrNull { it.widgetType == widget.type }?.let {
+                    currentFragment = it
                 }
 
                 //Update the widget image
-                val resourceId = resources.getIdentifier(widgetName, "drawable", packageName)
+                val resourceId = resources.getIdentifier("widget${widget.photoId}", "drawable", packageName)
                 if (resourceId != 0) {
                     imageView.visibility = View.VISIBLE
                     imageView.setImageDrawable(
@@ -59,12 +88,6 @@ class MainActivity : AppCompatActivity() {
                     imageView.visibility = View.GONE
                 }
             }
-        }
-    private var widgetTypeIndex: Int = 0
-        set(value) {
-            field = value
-            spinner.setSelection(widgetTypeIndex)
-            currentFragment = fragments[value]
         }
     private var ref: DocumentReference? = null
         set(value) {
@@ -86,57 +109,41 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        widget_name.setOnClickListener {
-            val view = layoutInflater.inflate(R.layout.dialog_widget_name, null, false)
-            view.widget_name.setText(widgetName)
-            AlertDialog.Builder(this)
-                .setTitle(R.string.dialog_title)
-                .setView(view)
-                .setPositiveButton("Save") { _, _ ->
-                    view.widget_name.text.toString().takeIf { it.isNotBlank() }?.let {
-                        getSharedPreferences(SHARED_PREFS_NAME, 0)
-                            .edit()
-                            .putString(SP_WIDGET_NAME, it)
-                            .apply()
-                        widgetName = it
-                    }
-                }
-                .setNegativeButton("Cancel", null)
-                .show()
+        //Listen for new widgets
+        systemsRef.addSnapshotListener { collection, _ ->
+            widgets = collection?.documents?.mapNotNull {
+                val name = it.data?.get("name") as? String
+                val type = it.data?.get("type") as? String
+                val photoId = (it.data?.get("photo_id") as? Long)?.toInt()
+                if (name != null && type != null) {
+                    Widget(it.id, name, type, photoId)
+                } else null
+            }.orEmpty().sortedBy { it.name }
         }
 
-        spinner.apply {
+        widget_spinner.apply {
             onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onNothingSelected(parent: AdapterView<*>?) {}
 
                 override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                    getSharedPreferences(SHARED_PREFS_NAME, 0)
-                        .edit()
-                        .putInt(SP_WIDGET_TYPE_INDEX, position)
-                        .apply()
-                    widgetTypeIndex = position
+                    //The "- 1" is because of the placeholder that we have in the spinner
+                    selectedWidget = widgets.getOrNull(position - 1)
                 }
             }
-
-            adapter = ArrayAdapter<String>(
-                this@MainActivity, R.layout.spinner_item, fragments.map(BaseFragment::displayName)
-            ).apply { setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
-        }
-
-        getSharedPreferences(SHARED_PREFS_NAME, 0).apply {
-            widgetName = getString(SP_WIDGET_NAME, null)
-            widgetTypeIndex = getInt(SP_WIDGET_TYPE_INDEX, 0)
         }
     }
 
     fun sendEvent(type: String, message: String?) {
-        serverRef.get().addOnSuccessListener {
-            serverRef.update("events", it.getEvents().toMutableList()
-                .apply { add(Event(type, widgetName, message)) })
-                .addOnSuccessListener { showToast(R.string.event_success) }
-                .addOnFailureListener { e -> showToast(getString(R.string.event_failed, e)) }
-        }.addOnFailureListener { e ->
-            showToast(getString(R.string.event_failed, e))
+        //Only send an event if they have a widget selected
+        selectedWidget?.let { widget ->
+            serverRef.get().addOnSuccessListener {
+                serverRef.update("events", it.getEvents().toMutableList()
+                    .apply { add(Event(type, widget.name, message)) })
+                    .addOnSuccessListener { showToast(R.string.event_success) }
+                    .addOnFailureListener { e -> showToast(getString(R.string.event_failed, e)) }
+            }.addOnFailureListener { e ->
+                showToast(getString(R.string.event_failed, e))
+            }
         }
     }
 

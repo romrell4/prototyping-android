@@ -15,6 +15,7 @@ import kotlin.concurrent.schedule
 
 class TextFragment : BaseFragment() {
     override val displayName = "Text"
+    override val widgetType = "text"
 
     private var timer: Timer? = null
 

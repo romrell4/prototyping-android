@@ -6,6 +6,7 @@ import com.romrell4.prototyping.MainActivity
 
 abstract class BaseFragment: Fragment() {
     abstract val displayName: String
+    abstract val widgetType: String
 
     abstract fun handleEvent(event: Event)
 

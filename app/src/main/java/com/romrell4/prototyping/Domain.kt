@@ -11,3 +11,10 @@ data class Event(
         map["message"] as? String
     )
 }
+
+data class Widget(
+    val id: String,
+    val name: String,
+    val type: String,
+    val photoId: Int?
+)

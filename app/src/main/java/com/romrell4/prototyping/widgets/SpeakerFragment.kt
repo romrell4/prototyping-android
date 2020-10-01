@@ -12,6 +12,8 @@ import java.util.*
 
 class SpeakerFragment : BaseFragment() {
     override val displayName = "Speaker"
+    override val widgetType = "speaker"
+
     private lateinit var tts: TextToSpeech
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
