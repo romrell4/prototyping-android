@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
         ButtonFragment(),
         SliderFragment()
     )
-    private var currentFragment = fragments[0]
+    private var currentFragment = fragments.first()
         set(value) {
             field = value
             supportFragmentManager.beginTransaction()
@@ -48,7 +48,7 @@ class MainActivity : AppCompatActivity() {
 
             //If they have a stored ID already, select that one
             getSharedPreferences(SHARED_PREFS_NAME, 0).getString(SP_WIDGET_ID, null)?.let { widgetId ->
-                selectedWidget = widgets.first { it.id == widgetId }
+                selectedWidget = widgets.firstOrNull { it.id == widgetId }
             }
         }
     private var selectedWidget: Widget? = null
@@ -61,33 +61,29 @@ class MainActivity : AppCompatActivity() {
 
             widget_type.text = value?.type?.capitalize()
 
-            value?.let { widget ->
-                ref = systemsRef.document(widget.id)
-
-                //Save the selection in shared prefs
-                getSharedPreferences(SHARED_PREFS_NAME, 0)
-                    .edit()
-                    .putString(SP_WIDGET_ID, widget.id)
-                    .apply()
-
-                //Update the displayed fragment
-                fragments.firstOrNull { it.widgetType == widget.type }?.let {
-                    currentFragment = it
-                }
-
-                //Update the widget image
-                val resourceId = resources.getIdentifier("widget${widget.photoId}", "drawable", packageName)
-                if (resourceId != 0) {
-                    imageView.visibility = View.VISIBLE
-                    imageView.setImageDrawable(
-                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP)
-                            resources.getDrawable(resourceId, theme)
-                        else resources.getDrawable(resourceId)
-                    )
-                } else {
-                    imageView.visibility = View.GONE
-                }
+            //Update the widget image
+            val resourceId = resources.getIdentifier("widget${value?.photoId}", "drawable", packageName)
+            if (resourceId != 0) {
+                imageView.visibility = View.VISIBLE
+                imageView.setImageDrawable(
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP)
+                        resources.getDrawable(resourceId, theme)
+                    else resources.getDrawable(resourceId)
+                )
+            } else {
+                imageView.visibility = View.GONE
             }
+
+            ref = value?.let { systemsRef.document(it.id) }
+
+            //Save the selection in shared prefs
+            getSharedPreferences(SHARED_PREFS_NAME, 0)
+                .edit()
+                .putString(SP_WIDGET_ID, value?.id)
+                .apply()
+
+            //Update the displayed fragment
+            currentFragment = fragments.firstOrNull { it.widgetType == value?.type } ?: fragments.first()
         }
     private var ref: DocumentReference? = null
         set(value) {
