@@ -16,6 +16,18 @@ If you aren't able to view the project, please reach out to Eric Romrell or
 Mike Jones, who should be able to add you as a member 
 [here](https://console.firebase.google.com/u/0/project/prototyping-a7600/settings/iam).
 
+### Setup notes for windows. 
+You may need to create a `local.properties` file in the top-level `prototyping-android` directory which contains the code: 
+```
+sdk.dir=C:\\Users\\yourUserNameHere\\AppData\\Local\\Android\\sdk
+```
+
+If your AndroidStudio installation is older than 4.1, edit `build.gradle` to change the version number in 
+```
+classpath 'com.android.tools.build:gradle:4.1.0'
+``` 
+to the version number of your AndroidStudio installation.  
+
 ## Example Usage
 
 ![usage](./readme_resources/android_only.gif)
